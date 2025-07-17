@@ -1,62 +1,68 @@
 // mcp_server.ts
-import { McpServer } from 'npm:@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from 'npm:@modelcontextprotocol/sdk/server/stdio.js';
-import { z } from 'npm:zod';
+import { McpServer } from "npm:@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "npm:@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "npm:zod";
 
 // Initialize MCP server
 const server = new McpServer({
-  name: 'play-beep-show-notification-server',
-  version: '1.0.0',
+  name: "McPing",
+  version: "1.0.0",
 });
 
 // Register play_beep tool
 server.registerTool(
-  'play_beep',
+  "play_beep",
   {
-    title: 'Play Beep',
-    description: 'Plays the default system beep sound.',
+    title: "Play Beep",
+    description: "Plays the default system beep sound.",
     inputSchema: {},
   },
   async () => {
-    const cmd = Deno.build.os === 'windows' ? ['cmd', '/c', 'echo', '\x07'] : ['printf', '\x07'];
+    const cmd =
+      Deno.build.os === "windows"
+        ? ["cmd", "/c", "echo", "\x07"]
+        : ["printf", "\x07"];
     await new Deno.Command(cmd[0], { args: cmd.slice(1) }).spawn().output();
-    return { content: [{ type: 'text', text: 'Beep played' }] };
+    return { content: [{ type: "text", text: "Beep played" }] };
   }
 );
 
 // Register show_notification tool
 server.registerTool(
-  'show_notification',
+  "show_notification",
   {
-    title: 'Show Notification',
-    description: 'Shows a desktop notification.',
+    title: "Show Notification",
+    description: "Shows a desktop notification.",
     inputSchema: {
       title: z.string(),
       message: z.string(),
     },
   },
   async ({ title, message }: { title: string; message: string }) => {
-    if (Deno.build.os === 'darwin') {
-      await new Deno.Command('osascript', {
-        args: ['-e', `display notification "${message}" with title "${title}"`],
+    if (Deno.build.os === "darwin") {
+      await new Deno.Command("osascript", {
+        args: ["-e", `display notification "${message}" with title "${title}"`],
       })
         .spawn()
         .output();
-    } else if (Deno.build.os === 'linux') {
-      await new Deno.Command('notify-send', {
+    } else if (Deno.build.os === "linux") {
+      await new Deno.Command("notify-send", {
         args: [title, message],
       })
         .spawn()
         .output();
-    } else if (Deno.build.os === 'windows') {
-      await new Deno.Command('powershell', {
-        args: ['-Command', `New-BurntToastNotification -Text '${title}', '${message}'`],
+    } else if (Deno.build.os === "windows") {
+      await new Deno.Command("powershell", {
+        args: [
+          "-Command",
+          `New-BurntToastNotification -Text '${title}', '${message}'`,
+        ],
       })
         .spawn()
         .output();
     }
     return {
-      content: [{ type: 'text', text: `Notification shown: ${title}` }],
+      content: [{ type: "text", text: `Notification shown: ${title}` }],
     };
   }
 );
