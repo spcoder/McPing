@@ -5,15 +5,15 @@ import { z } from 'npm:zod';
 
 // Initialize MCP server
 const server = new McpServer({
-  name: 'beep-notify-server',
+  name: 'play-beep-show-notification-server',
   version: '1.0.0',
 });
 
-// Register beep tool
+// Register play_beep tool
 server.registerTool(
-  'beep',
+  'play_beep',
   {
-    title: 'Beep',
+    title: 'Play Beep',
     description: 'Plays the default system beep sound.',
     inputSchema: {},
   },
@@ -24,11 +24,11 @@ server.registerTool(
   }
 );
 
-// Register desktopNotification tool
+// Register show_notification tool
 server.registerTool(
-  'desktopNotification',
+  'show_notification',
   {
-    title: 'Desktop Notification',
+    title: 'Show Notification',
     description: 'Shows a desktop notification.',
     inputSchema: {
       title: z.string(),
